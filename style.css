@@ -8,8 +8,10 @@
 }
 .main-container {
   display: grid;
+  position: absolute;
   grid-template-columns: minmax(100px, 280px) 1fr;
   height: 100vh;
+  width: 100vw;
   background-color: #121212;
 }
 .sidebar-container {
@@ -20,33 +22,14 @@
 }
 .content-container {
   background-color: rgb(9, 9, 9);
+  color: #e9e9e9;
 }
 .search-area {
   padding: 1rem;
   height: fit-content;
   width: 90%;
 }
-#searchBox {
-  width: 87.5%;
-  font-size: 1rem;
-  padding: 0.6rem;
-  border-radius: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgb(57, 57, 57);
-  backdrop-filter: blur(10px);
-  color: #e9e9e9;
-  align-self: center;
-}
-#searchBox:focus {
-  border: 1px solid rgb(97, 97, 97);
-  transition: border 0.2s ease-in-out;
-  outline: none;
-}
-#searchBox:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transition: background-color 0.2s ease-in-out;
-  border: 1px solid rgb(57, 57, 57);
-}
+
 .other-buttons {
   display: flex;
   flex-direction: row;
@@ -56,7 +39,7 @@
   text-align: left;
   font-size: 1rem;
   border-radius: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgb(57, 57, 57);
   color: #e9e9e9;
@@ -69,18 +52,18 @@
   display: inline-block;
 }
 .other-buttons:hover {
-  transition: background-color 0.2s ease-in-out;
-  background-color: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.2s ease-in-out !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
 }
 .button-active {
-  background-color: rgba(0, 27, 137, 0.615);
-  border-color: rgba(0, 27, 137, 0.556);
+  background-color: rgba(0, 27, 137, 0.615) !important;
+  border-color: rgba(0, 27, 137, 0.556) !important;
 }
 .button-active:hover {
-  transition: background-color 0.2s ease-in-out;
-  transition: border-color 0.2s ease-in-out;
-  background-color: rgba(0, 27, 137, 0.766);
-  border-color: rgb(0, 27, 137);
+  transition: background-color 0.2s ease-in-out !important;
+  transition: border-color 0.2s ease-in-out !important;
+  background-color: rgba(0, 27, 137, 0.766) !important;
+  border-color: rgb(0, 27, 137) !important;
 }
 .other-buttons-area {
   padding: 1rem;
@@ -92,11 +75,14 @@
 }
 .add-task-container {
   width: 20%;
+  display: flex;
+  flex-direction: row;
 }
 .bottom-content {
   margin-top: auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 1rem;
   min-width: 50%;
 }
 
@@ -106,16 +92,208 @@
   justify-content: center;
 }
 #addButton {
-  background-color: rgba(0, 27, 137, 0.615);
-  border-color: rgba(0, 27, 137, 0.556);
+  background-color: rgba(0, 27, 137, 0.615) !important;
+  border-color: rgba(0, 27, 137, 0.556) !important;
 }
 #addButton:hover {
-  transition: background-color 0.2s ease-in-out;
-  transition: border-color 0.2s ease-in-out;
-  background-color: rgba(0, 27, 137, 0.766);
-  border-color: rgb(0, 27, 137);
+  transition: background-color 0.2s ease-in-out !important;
+  transition: border-color 0.2s ease-in-out !important;
+  background-color: rgba(0, 27, 137, 0.766) !important;
+  border-color: rgb(0, 27, 137) !important;
 }
 .hidden {
   pointer-events: none;
   opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.show {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+.input-text {
+  width: 87.5%;
+  font-size: 1rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(57, 57, 57);
+  backdrop-filter: blur(10px);
+  color: #e9e9e9;
+  align-self: center;
+}
+.input-text:focus {
+  border: 1px solid rgb(97, 97, 97);
+  transition: border 0.2s ease-in-out;
+  outline: none;
+}
+.input-text:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.2s ease-in-out;
+  border: 1px solid rgb(57, 57, 57);
+}
+#fastTaskAdd {
+  width: 10.5rem;
+}
+.add-modal-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.add-modal {
+  background-color: #2b2b2b;
+  width: 400px;
+  height: 400px;
+  color: #e9e9e9;
+  align-self: center;
+  justify-self: center;
+  border-radius: 0.5rem;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.add-modal::-webkit-scrollbar {
+  display: none;
+}
+.add-modal-top {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  position: sticky;
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+.add-modal-close {
+  padding: 1rem;
+  margin-left: auto;
+  cursor: pointer;
+}
+.add-modal-title {
+  margin: 1rem;
+  font-size: 1.5rem;
+}
+.add-modal-content {
+  padding: 1rem;
+  position: relative;
+}
+.add-section {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.add-section-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+#moreOptButton {
+  width: fit-content;
+}
+#moreOptSVG {
+  transition: transform 0.3s ease;
+}
+#moreOptSVG.active {
+  transform: rotate(180deg);
+}
+option {
+  background-color: #121212;
+  color: #e9e9e9;
+}
+.select-area {
+  width: 92%;
+  background: url("data:image/svg+xml,<svg width='20px' height='20px' stroke-width='1.5' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' color='%23e9e9e9'><path d='M6 9L12 15L18 9' stroke='%23e9e9e9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'></path></svg>")
+    no-repeat;
+  background-position: calc(100% - 0.75rem) center;
+  appearance: none;
+}
+.add-more-opt-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 400px; /* fixed or max height */
+  overflow-y: auto; /* scrolling enabled */
+  opacity: 1;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+.add-more-opt-container.hidden {
+  overflow: hidden; /* hide overflow only while collapsing */
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.add-more-opt-container::-webkit-scrollbar {
+  display: none;
+}
+/* airdatepicker styling */
+.air-datepicker {
+  background: #121212;
+  color: #e9e9e9;
+  border-color: black;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.air-datepicker--navigation,
+.air-datepicker--content,
+.air-datepicker-cell {
+  background: #121212;
+  color: #e9e9e9;
+  border-color: black;
+}
+
+.air-datepicker-cell.-selected-,
+.air-datepicker-cell.-focus- {
+  background: #e9e9e9;
+  color: #121212;
+}
+
+.air-datepicker-cell.-current- {
+  border: 1px solid #e9e9e9;
+  border-color: black;
+}
+
+.air-datepicker-time {
+  background: #121212;
+  border-top: 1px solid #333;
+  border-color: black;
+}
+
+/* end of airdatepicker styling */
+
+#addTaskFunctionButton {
+  width: fit-content;
+  height: fit-content;
+  box-sizing: border-box;
+  flex-shrink: 0; /* prevent shrinking */
+  background-color: rgba(0, 50, 250, 0.615) !important;
+  border-color: rgba(0, 27, 137, 0.556) !important;
+}
+
+#addTaskFunctionButton:hover {
+  transition: background-color 0.2s ease-in-out !important;
+  transition: border-color 0.2s ease-in-out !important;
+  background-color: rgba(32, 77, 255, 0.766) !important;
+  border-color: rgb(0, 27, 137) !important;
+}
+
+.add-task-func-container {
+  position: sticky;
+  bottom: 0;
+  padding: 1rem;
+  padding-left: 0;
+  z-index: 10;
+  top: 260px;
+}
+.add-task-func-container::before {
+  content: "";
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -16px;
+  width: 100%; /* Adjust this percentage to control how much of the left side is blurred */
+  height: 100%;
+  backdrop-filter: blur(10px);
 }
