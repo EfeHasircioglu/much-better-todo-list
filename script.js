@@ -4,13 +4,17 @@ let addModalClose = document.getElementById("addModalClose");
 let addTaskFunctionButton = document.getElementById("addTaskFunctionButton");
 let moreOptButton = document.getElementById("moreOptButton");
 let moreOptSVG = document.getElementById("moreOptSVG");
-let dueDateSelect = document.getElementById("dueDateSelect");
 let addMoreOptContainer = document.getElementById("addMoreOptContainer");
+// add modaldaki input elementleri
+let titleInput = document.getElementById("titleInput");
+let descInput = document.getElementById("descInput");
+let categorySelect = document.getElementById("categorySelect");
+let urgencySelect = document.getElementById("urgencySelect");
+let dueDateSelect = document.getElementById("dueDateSelect");
 
 //initialising the list that will contain the tasks
 
-tasks = []
-
+tasks = [];
 
 //initialising airdatepicker
 
@@ -68,7 +72,6 @@ new AirDatepicker(dueDateSelect, {
   position: "top center",
 });
 
-
 // functionality of the add modal
 const addModalFunctionality = () => {
   // modalın açılması ve kapanması ile ilgili
@@ -85,7 +88,38 @@ const addModalFunctionality = () => {
     addMoreOptContainer.classList.toggle("hidden");
     moreOptSVG.classList.toggle("active"); // re-trigger animation
   });
-  add
+
+  //adding the task from the modal
+  addTaskFunctionButton.addEventListener("click", () => {
+    let titleInputValue = titleInput.value.trim();
+    let descInputValue = descInput.value;
+    let categorySelectValue = categorySelect.value;
+    let dueDateSelectValue = dueDateSelect.value;
+    let urgencySelectValue = urgencySelect.value;
+
+    if (titleInputValue === "") {
+      return;
+    }
+    const newTask = {
+      title: titleInputValue,
+      description: descInputValue,
+      category: categorySelectValue,
+      dueDate: dueDateSelectValue,
+      urgency: urgencySelectValue,
+    };
+
+    tasks.push(newTask);
+
+    console.log(tasks);
+
+    titleInput.value = "";
+    descInput.value = "";
+    categorySelect.value = "";
+    dueDateSelect.value = "";
+    urgencySelect.value = "";
+    addModal.classList.add("hidden");
+    addModal.classList.remove("show");
+  });
 };
 
 addModalFunctionality();
