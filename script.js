@@ -14,7 +14,8 @@ let dueDateSelect = document.getElementById("dueDateSelect");
 //add modaldaki title girilmediği zaman içinde title gir hocam yazacak şey
 let titleWarning = document.getElementById("titleWarning");
 let taskList = document.getElementById("taskList");
-
+//check edilip edilmedi mi diye kontrol etmemiz için checkboxların hepsini alıyoruz
+let taskCheckboxes = document.getElementsByClassName("task-checkbox");
 //initialising the list that will contain the tasks
 
 let tasks = [];
@@ -99,13 +100,16 @@ const addModalFunctionality = () => {
     let categorySelectValue = categorySelect.value;
     let dueDateSelectValue = dueDateSelect.value;
     let urgencySelectValue = urgencySelect.value;
+    const id = crypto.randomUUID();
 
     const newTask = {
+      id: id,
       title: titleInputValue,
       description: descInputValue,
       category: categorySelectValue,
       dueDate: dueDateSelectValue,
       urgency: urgencySelectValue,
+      checked: false,
     };
 
     createTask(newTask);
@@ -120,8 +124,6 @@ const addModalFunctionality = () => {
   });
 };
 
-
-
 const createTask = (task) => {
   if (task.title === "") {
     titleWarning.innerHTML = "This is a required field.";
@@ -133,25 +135,55 @@ const createTask = (task) => {
   }
 
   tasks.push(task);
+  helperRenderTasks();
+  //debug için, sonra kaldırılır!
+  console.log("DEBUG: New task added!");
+};
 
+const renderTask = (task) => {
   //her bir taskın ayrı containeri
   const taskDiv = document.createElement("div");
   taskDiv.classList.add("task");
   //taskların checkbox'u
   const taskCheckbox = document.createElement("div");
   taskCheckbox.classList.add("task-checkbox");
+  //checkbox tıklanması için mini-mantık
+  taskCheckbox.addEventListener("click", () => {
+    toggleTaskCompletion(task.id);
+  });
   //task metni
   const taskText = document.createElement("span");
   taskText.classList.add("task-text");
   taskText.innerHTML = task.title;
+  // eğer task checked ise, o zaman o yuvarlağın içinde checked olduğunu belirtecek bir şey göstermemiz gerekiyor.
+  if (task.checked) {
+    taskCheckbox.classList.add("task-checkbox-checked");
+  } else {
+    taskCheckbox.classList.remove("task-checkbox-checked");
+    taskCheckbox.innerHTML = "";
+  }
   //bir de taskı hoverlediğimizde onun yanında çıkan details butonunu ayarlamak lzm
   //şimdi bu mevzuları ekranda görüntülenmesini sağlamamızı gerekiyor.
   taskDiv.appendChild(taskCheckbox);
   taskDiv.appendChild(taskText);
   //şimdi görevi asıl bütün listeye ekliyoruz görüntüleme olarak
   taskList.appendChild(taskDiv);
-  //debug için, sonra kaldırılır!
-  console.log("yeni task başarıyla eklendi.");
+};
+
+// helper func for drawing tasks on the screen
+const helperRenderTasks = () => {
+  taskList.innerHTML = ""; // Önce listeyi DOM'dan temizle
+  tasks.forEach((task) => renderTask(task));
+};
+
+const toggleTaskCompletion = (id) => {
+  // task completion olayını tamamen burada yapacağız
+  let targetTask = tasks.find((task) => task.id === id);
+  if (targetTask) {
+    targetTask.checked = !targetTask.checked; // eğer checked ise unchecked yap, yani toggle
+    helperRenderTasks(); // DOM’u güncelle
+  }
+  console.log("DEBUG: Task check toggled!");
 };
 
 addModalFunctionality();
