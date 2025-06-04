@@ -11,10 +11,13 @@ let descInput = document.getElementById("descInput");
 let categorySelect = document.getElementById("categorySelect");
 let urgencySelect = document.getElementById("urgencySelect");
 let dueDateSelect = document.getElementById("dueDateSelect");
+//add modaldaki title girilmediği zaman içinde title gir hocam yazacak şey
+let titleWarning = document.getElementById("titleWarning");
+let taskList = document.getElementById("taskList");
 
 //initialising the list that will contain the tasks
 
-tasks = [];
+let tasks = [];
 
 //initialising airdatepicker
 
@@ -97,9 +100,6 @@ const addModalFunctionality = () => {
     let dueDateSelectValue = dueDateSelect.value;
     let urgencySelectValue = urgencySelect.value;
 
-    if (titleInputValue === "") {
-      return;
-    }
     const newTask = {
       title: titleInputValue,
       description: descInputValue,
@@ -108,9 +108,7 @@ const addModalFunctionality = () => {
       urgency: urgencySelectValue,
     };
 
-    tasks.push(newTask);
-
-    console.log(tasks);
+    createTask(newTask);
 
     titleInput.value = "";
     descInput.value = "";
@@ -120,6 +118,40 @@ const addModalFunctionality = () => {
     addModal.classList.add("hidden");
     addModal.classList.remove("show");
   });
+};
+
+
+
+const createTask = (task) => {
+  if (task.title === "") {
+    titleWarning.innerHTML = "This is a required field.";
+    titleInput.classList.add("input-warning");
+    return;
+  } else {
+    titleWarning.innerHTML = "";
+    titleInput.classList.remove("input-warning");
+  }
+
+  tasks.push(task);
+
+  //her bir taskın ayrı containeri
+  const taskDiv = document.createElement("div");
+  taskDiv.classList.add("task");
+  //taskların checkbox'u
+  const taskCheckbox = document.createElement("div");
+  taskCheckbox.classList.add("task-checkbox");
+  //task metni
+  const taskText = document.createElement("span");
+  taskText.classList.add("task-text");
+  taskText.innerHTML = task.title;
+  //bir de taskı hoverlediğimizde onun yanında çıkan details butonunu ayarlamak lzm
+  //şimdi bu mevzuları ekranda görüntülenmesini sağlamamızı gerekiyor.
+  taskDiv.appendChild(taskCheckbox);
+  taskDiv.appendChild(taskText);
+  //şimdi görevi asıl bütün listeye ekliyoruz görüntüleme olarak
+  taskList.appendChild(taskDiv);
+  //debug için, sonra kaldırılır!
+  console.log("yeni task başarıyla eklendi.");
 };
 
 addModalFunctionality();
