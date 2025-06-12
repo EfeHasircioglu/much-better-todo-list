@@ -5,6 +5,10 @@ let addTaskFunctionButton = document.getElementById("addTaskFunctionButton");
 let moreOptButton = document.getElementById("moreOptButton");
 let moreOptSVG = document.getElementById("moreOptSVG");
 let addMoreOptContainer = document.getElementById("addMoreOptContainer");
+//filtreleme butonları: all, completed ve due
+let allFilterButton = document.getElementById("allTasksButton");
+let completedFilterButton = document.getElementById("completedButton");
+let dueFilterButton = document.getElementById("dueButton");
 // add modaldaki input elementleri
 let titleInput = document.getElementById("titleInput");
 let descInput = document.getElementById("descInput");
@@ -17,8 +21,11 @@ let taskList = document.getElementById("taskList");
 //check edilip edilmedi mi diye kontrol etmemiz için checkboxların hepsini alıyoruz
 let taskCheckboxes = document.getElementsByClassName("task-checkbox");
 //initialising the list that will contain the tasks
-
 let tasks = [];
+// all tasks menüsünde başlıyoruz uygulamaya, onun için onun stili aktif olacak
+allFilterButton.classList.add("button-active");
+//hengi menüde olduğumuzu takip etmek için
+let activeMenu = 0; // 0: All Tasks, 1: Completed, 2: Due
 
 //initialising airdatepicker
 
@@ -113,7 +120,6 @@ const addModalFunctionality = () => {
     };
 
     createTask(newTask);
-
     titleInput.value = "";
     descInput.value = "";
     categorySelect.value = "";
@@ -135,11 +141,10 @@ const createTask = (task) => {
   }
 
   tasks.push(task);
-  helperRenderTasks();
+  helperRenderTasks(activeMenu);
   //debug için, sonra kaldırılır!
   console.log("DEBUG: New task added!");
 };
-
 const renderTask = (task) => {
   //her bir taskın ayrı containeri
   const taskDiv = document.createElement("div");
@@ -149,7 +154,7 @@ const renderTask = (task) => {
   taskCheckbox.classList.add("task-checkbox");
   //checkbox tıklanması için mini-mantık
   taskCheckbox.addEventListener("click", () => {
-    toggleTaskCompletion(task.id);
+    toggleTaskCompletion(task.id, taskDiv); // checkbox tıklandığında olan şey!
   });
   //task metni
   const taskText = document.createElement("span");
@@ -171,19 +176,68 @@ const renderTask = (task) => {
 };
 
 // helper func for drawing tasks on the screen
-const helperRenderTasks = () => {
+const helperRenderTasks = (activeMenu) => {
   taskList.innerHTML = ""; // Önce listeyi DOM'dan temizle
-  tasks.forEach((task) => renderTask(task));
+  let filteredTasks = [];
+  if (activeMenu === 0) {
+    // Eğer şuan All Tasks'ı görüntülüyorsak, ki burada completed'ler olmayacak
+    filteredTasks = tasks.filter((task) => !task.checked);
+  } else if (activeMenu === 1) {
+    //Completed görevler burada görünecek
+    filteredTasks = tasks.filter((task) => task.checked); // sadece task.checked olan görevler filteredTasks içine dahil ediliyor
+  } else if (activeMenu === 2) {
+    filteredTasks = tasks.filter((task) => task.dueDate < Date.now()); // due olan görevler 3. menüde görünecek
+  }
+  filteredTasks.forEach((task) => renderTask(task));
 };
 
-const toggleTaskCompletion = (id) => {
+const menuChangeLogic = () => {
+  //burada ise şu all, completed ve due buttonlarına her basıldığında activeMenu değeri değişecek, ama aynı zamanda butonların animasyonları da halledilecek, güzel gözükmesi gerekiyor
+  // !! bir de completed'deki görevlerin tikli görünmesi gerekiyor ki bence bu konuda bir sıkıntı yaşanmaz
+  allFilterButton.addEventListener("click", () => {
+    activeMenu = 0;
+    helperRenderTasks(activeMenu);
+    allFilterButton.classList.add("button-active");
+    dueFilterButton.classList.remove("button-active");
+    completedFilterButton.classList.remove("button-active");
+  });
+
+  completedFilterButton.addEventListener("click", () => {
+    activeMenu = 1;
+    helperRenderTasks(activeMenu);
+    allFilterButton.classList.remove("button-active");
+    dueFilterButton.classList.remove("button-active");
+    completedFilterButton.classList.add("button-active");
+  });
+
+  dueFilterButton.addEventListener("click", () => {
+    activeMenu = 2;
+    helperRenderTasks(activeMenu);
+    allFilterButton.classList.remove("button-active");
+    dueFilterButton.classList.add("button-active");
+    completedFilterButton.classList.remove("button-active");
+  });
+};
+
+const toggleTaskCompletion = (id, taskDiv) => {
   // task completion olayını tamamen burada yapacağız
   let targetTask = tasks.find((task) => task.id === id);
   if (targetTask) {
     targetTask.checked = !targetTask.checked; // eğer checked ise unchecked yap, yani toggle
-    helperRenderTasks(); // DOM’u güncelle
+    //burada fade out animasyonunu yapacağız, bütün menüler için geçerli olacak çünkü uncheck yaparsak da aynı şey olmalı, her türlü güzel gözükmeli yani
+    taskDiv.classList.add("task-checked-animation"); // taskımızı fade out yapan sınıfı ekliyoruz task'a
+
+    taskDiv.addEventListener(
+      // burdaki kodlar, transition bitince çalışacak ve bu sayede animasyon sorunsuz şekilde gösterilecek!
+      "transitionend",
+      () => {
+        helperRenderTasks(activeMenu); // DOM’u güncelle
+      },
+      { once: true }
+    );
   }
   console.log("DEBUG: Task check toggled!");
 };
 
 addModalFunctionality();
+menuChangeLogic();
