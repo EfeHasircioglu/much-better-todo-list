@@ -185,15 +185,21 @@ const helperRenderTasks = (activeMenu) => {
   } else if (activeMenu === 1) {
     //Completed görevler burada görünecek
     filteredTasks = tasks.filter((task) => task.checked); // sadece task.checked olan görevler filteredTasks içine dahil ediliyor
-  } else if (activeMenu === 2) {
-    filteredTasks = tasks.filter((task) => task.dueDate < Date.now()); // due olan görevler 3. menüde görünecek
+  } // due olan görevler 3. menüde görünecek
+  else if (activeMenu === 2) {
+    filteredTasks = tasks.filter((task) => {
+      const taskDue = new Date(task.dueDate);
+      return !task.checked && taskDue < Date.now(); //aynı zamanda mantıken görevin tamamlanmamış da olması gerekiyor
+    });
   }
   filteredTasks.forEach((task) => renderTask(task));
 };
 
+
 const menuChangeLogic = () => {
   //burada ise şu all, completed ve due buttonlarına her basıldığında activeMenu değeri değişecek, ama aynı zamanda butonların animasyonları da halledilecek, güzel gözükmesi gerekiyor
-  // !! bir de completed'deki görevlerin tikli görünmesi gerekiyor ki bence bu konuda bir sıkıntı yaşanmaz
+  // !! bir de completed'deki görevlerin tikli görünmesi gerekiyor ki bence bu konuda bir sıkıntı yaşanmaz (evet, yaşanmadı!)
+  //şimdi bir de menüler arası geçiş olurken fade in-fade out olacak
   allFilterButton.addEventListener("click", () => {
     activeMenu = 0;
     helperRenderTasks(activeMenu);
@@ -225,6 +231,13 @@ const toggleTaskCompletion = (id, taskDiv) => {
   if (targetTask) {
     targetTask.checked = !targetTask.checked; // eğer checked ise unchecked yap, yani toggle
     //burada fade out animasyonunu yapacağız, bütün menüler için geçerli olacak çünkü uncheck yaparsak da aynı şey olmalı, her türlü güzel gözükmeli yani
+    if(targetTask.checked){
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+    }
     taskDiv.classList.add("task-checked-animation"); // taskımızı fade out yapan sınıfı ekliyoruz task'a
 
     taskDiv.addEventListener(
