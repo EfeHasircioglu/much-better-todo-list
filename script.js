@@ -1,10 +1,15 @@
+//TODO: yarın şu hızlı task ekleme olayını da yapalım
 let addModal = document.getElementById("addModal");
+let addModalInternal = document.getElementById("addModalInternal");
 let addButton = document.getElementById("addButton");
 let addModalClose = document.getElementById("addModalClose");
 let addTaskFunctionButton = document.getElementById("addTaskFunctionButton");
+// add modaLı içerisindeki more option olayları
 let moreOptButton = document.getElementById("moreOptButton");
 let moreOptSVG = document.getElementById("moreOptSVG");
 let addMoreOptContainer = document.getElementById("addMoreOptContainer");
+// eğer gösterilecek task yoksa emptyState gösterilecek
+let taskListEmptyState = document.getElementById("emptyState");
 //filtreleme butonları: all, completed ve due
 let allFilterButton = document.getElementById("allTasksButton");
 let completedFilterButton = document.getElementById("completedButton");
@@ -15,11 +20,25 @@ let descInput = document.getElementById("descInput");
 let categorySelect = document.getElementById("categorySelect");
 let urgencySelect = document.getElementById("urgencySelect");
 let dueDateSelect = document.getElementById("dueDateSelect");
+//hızlı bir şekilde görev eklemek için olan input
+let fastTaskAdd = document.getElementById("fastTaskAdd");
 //add modaldaki title girilmediği zaman içinde title gir hocam yazacak şey
 let titleWarning = document.getElementById("titleWarning");
 let taskList = document.getElementById("taskList");
 //check edilip edilmedi mi diye kontrol etmemiz için checkboxların hepsini alıyoruz
 let taskCheckboxes = document.getElementsByClassName("task-checkbox");
+//detayların ve edit-silme işleminin gösterileceği modalın elementlerini alıyoruz
+let detailsModalContainer = document.getElementById("detailsModal");
+let detailsModalInner = document.getElementById("detailsModalInternal");
+let detailsItemTitle = document.getElementById("detailsItemTitle");
+let detailsItemDescription = document.getElementById("detailsItemDescription");
+let detailsItemCategory = document.getElementById("detailsItemCategory");
+let detailsItemDueDate = document.getElementById("detailsItemDueDate");
+let detailsItemUrgency = document.getElementById("detailsItemUrgency");
+let detailsDeleteButton = document.getElementById("detailsDeleteButton");
+let detailsEditButton = document.getElementById("detailsEditButton");
+let detailsCloseButton = document.getElementById("detailsModalClose");
+let detailsModalMore = document.getElementById("detailsModalMore");
 //initialising the list that will contain the tasks
 let tasks = [];
 // all tasks menüsünde başlıyoruz uygulamaya, onun için onun stili aktif olacak
@@ -94,6 +113,13 @@ const addModalFunctionality = () => {
   addModalClose.addEventListener("click", () => {
     addModal.classList.add("hidden");
     addModal.classList.remove("show");
+    addModal.addEventListener(
+      "transitionend",
+      () => {
+        addModalReset();
+      },
+      { once: true }
+    );
   });
   moreOptButton.addEventListener("click", () => {
     addMoreOptContainer.classList.toggle("hidden");
@@ -120,24 +146,82 @@ const addModalFunctionality = () => {
     };
 
     createTask(newTask);
-    titleInput.value = "";
-    descInput.value = "";
-    categorySelect.value = "";
-    dueDateSelect.value = "";
-    urgencySelect.value = "";
-    addModal.classList.add("hidden");
-    addModal.classList.remove("show");
+    addModalReset();
   });
 };
 
+const detailedModalFunctionality = () => {
+  //TODO: taskın urgency değerine göre detaylarda bulunan urgency şeyinin arkaplan rengini değiştirelim, eğer task due ise o zaman direk görevin kendisi kırmızı olabilir. bi de delete ve edit butonları başka bi more gibi bi butona bastığımızda ortaya çıksa ilginç olabilir
+  //NOTE: detaylar butonuna basıldığında değil, işaretleme yeri hariç görevin üzerine basıldığında menü açılacak. daha clean olur.
+  detailsCloseButton.addEventListener("click", () => {
+    detailsModalContainer.classList.add("hidden");
+    detailsModalContainer.classList.remove("show");
+  });
+};
+
+const showTaskDetails = (task) => {
+  detailsItemTitle.innerText = task.title;
+  detailsItemDescription.innerText = task.description;
+  if (task.category === "None") {
+    detailsItemCategory.classList.add("display-none");
+  } else {
+    detailsItemCategory.innerText = task.category;
+    detailsItemCategory.classList.remove("display-none");
+  }
+  if (task.dueDate === "") {
+    detailsItemDueDate.classList.add("display-none");
+  } else {
+    detailsItemDueDate.innerHTML = task.dueDate;
+    detailsItemDueDate.classList.remove("display-none");
+  }
+  if (task.urgency === "None") {
+    detailsItemUrgency.classList.add("display-none");
+  } else {
+    detailsItemUrgency.innerText = task.urgency;
+    detailsItemUrgency.classList.remove("display-none");
+  }
+  if (
+    task.category === "None" &&
+    task.urgency === "None" &&
+    task.dueDate === ""
+  ) {
+    detailsModalMore.classList.add("display-none");
+  } else {
+    detailsModalMore.classList.remove("display-none");
+  }
+  detailsModalContainer.classList.remove("hidden");
+  detailsModalContainer.classList.add("show");
+};
+
+const addModalReset = () => {
+  //modalın kapanma ve sıfırlanma işlemleri
+  //modaldaki more options'un sıfırlanması ve scroll'un en başa getirilmesi
+  if (!titleEmpty) {
+    addModalInternal.scrollTop = 0;
+    addMoreOptContainer.classList.add("hidden");
+    moreOptSVG.classList.remove("active"); // re-trigger animation
+    //diğer yerlerin sıfırlanması
+    titleInput.value = "";
+    descInput.value = "";
+    categorySelect.value = "None";
+    dueDateSelect.value = "";
+    urgencySelect.value = "None";
+    addModal.classList.add("hidden");
+    addModal.classList.remove("show");
+  }
+};
+
+let titleEmpty;
 const createTask = (task) => {
   if (task.title === "") {
     titleWarning.innerHTML = "This is a required field.";
     titleInput.classList.add("input-warning");
+    titleEmpty = true;
     return;
   } else {
     titleWarning.innerHTML = "";
     titleInput.classList.remove("input-warning");
+    titleEmpty = false;
   }
 
   tasks.push(task);
@@ -152,9 +236,16 @@ const renderTask = (task) => {
   //taskların checkbox'u
   const taskCheckbox = document.createElement("div");
   taskCheckbox.classList.add("task-checkbox");
+
   //checkbox tıklanması için mini-mantık
   taskCheckbox.addEventListener("click", () => {
     toggleTaskCompletion(task.id, taskDiv); // checkbox tıklandığında olan şey!
+  });
+  // checkbox hariç taska tıklanınca taskın detaylarını gösterecek menü ortaya çıkacak, ama menünün içeriği diğer fonksiyonda ayarlanacak
+  taskDiv.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("task-checkbox")) {
+      showTaskDetails(task);
+    }
   });
   //task metni
   const taskText = document.createElement("span");
@@ -167,8 +258,8 @@ const renderTask = (task) => {
     taskCheckbox.classList.remove("task-checkbox-checked");
     taskCheckbox.innerHTML = "";
   }
-  //bir de taskı hoverlediğimizde onun yanında çıkan details butonunu ayarlamak lzm
-  //şimdi bu mevzuları ekranda görüntülenmesini sağlamamızı gerekiyor.
+  //bir de taskı hoverlediğimizde onun yanında çıkan details butonunu ayarlamak lzm, şimdi sıra burada
+
   taskDiv.appendChild(taskCheckbox);
   taskDiv.appendChild(taskText);
   //şimdi görevi asıl bütün listeye ekliyoruz görüntüleme olarak
@@ -177,7 +268,9 @@ const renderTask = (task) => {
 
 // helper func for drawing tasks on the screen
 const helperRenderTasks = (activeMenu) => {
-  taskList.innerHTML = ""; // Önce listeyi DOM'dan temizle
+  taskListEmptyState.classList.add("out-of-display"); //her ihtimale karşı
+
+  taskList.innerHTML = ""; //daha önceden eklenen görevlerin tekrardan ekrana eklenmesini engelliyor
   let filteredTasks = [];
   if (activeMenu === 0) {
     // Eğer şuan All Tasks'ı görüntülüyorsak, ki burada completed'ler olmayacak
@@ -192,36 +285,92 @@ const helperRenderTasks = (activeMenu) => {
       return !task.checked && taskDue < Date.now(); //aynı zamanda mantıken görevin tamamlanmamış da olması gerekiyor
     });
   }
-  filteredTasks.forEach((task) => renderTask(task));
+  if (filteredTasks.length !== 0) {
+    // eğer listemizde görev varsa o zaman normal şekilde görevler gösterilecek (bu çalışıyor)
+    filteredTasks.forEach((task) => renderTask(task));
+    hideEmptyState();
+  } else if (filteredTasks.length === 0) {
+    // ama eğer listede henüz bir görev yoksa bu sefer başka, hiçbir ekranın olmadığına dair bir görev gösterilecek (bu çalışmıyor)
+    showEmptyState();
+  }
 };
 
+// ekran boş iken gösterilmesi için
+const showEmptyState = () => {
+  taskListEmptyState.style.display = "block";
+  void taskListEmptyState.offsetWidth; // reflow tetikleyelim
+  taskListEmptyState.classList.remove("out-of-display");
+};
+
+const hideEmptyState = () => {
+  taskListEmptyState.classList.add("out-of-display");
+  taskListEmptyState.addEventListener(
+    "transitionend",
+    () => {
+      taskListEmptyState.style.display = "none";
+    },
+    { once: true }
+  );
+};
 
 const menuChangeLogic = () => {
-  //burada ise şu all, completed ve due buttonlarına her basıldığında activeMenu değeri değişecek, ama aynı zamanda butonların animasyonları da halledilecek, güzel gözükmesi gerekiyor
-  // !! bir de completed'deki görevlerin tikli görünmesi gerekiyor ki bence bu konuda bir sıkıntı yaşanmaz (evet, yaşanmadı!)
   //şimdi bir de menüler arası geçiş olurken fade in-fade out olacak
   allFilterButton.addEventListener("click", () => {
     activeMenu = 0;
-    helperRenderTasks(activeMenu);
+    taskList.classList.remove("fade-in", "fade-out");
+    void taskList.offsetWidth; // reflow zorlaması (zorunlu, animasyon tetiklenmesi için)
+    taskList.classList.add("fade-out");
     allFilterButton.classList.add("button-active");
     dueFilterButton.classList.remove("button-active");
     completedFilterButton.classList.remove("button-active");
+    taskList.addEventListener(
+      "transitionend",
+      () => {
+        helperRenderTasks(activeMenu);
+        //bu sefer direk fade-in oluyor
+        taskList.classList.remove("fade-out");
+        taskList.classList.add("fade-in");
+      },
+      { once: true }
+    );
   });
 
   completedFilterButton.addEventListener("click", () => {
     activeMenu = 1;
-    helperRenderTasks(activeMenu);
+    taskList.classList.remove("fade-in", "fade-out");
+    void taskList.offsetWidth; // reflow zorlaması (zorunlu, animasyon tetiklenmesi için)
+    taskList.classList.add("fade-out");
     allFilterButton.classList.remove("button-active");
     dueFilterButton.classList.remove("button-active");
     completedFilterButton.classList.add("button-active");
+    taskList.addEventListener(
+      "transitionend",
+      () => {
+        helperRenderTasks(activeMenu);
+        taskList.classList.remove("fade-out");
+        taskList.classList.add("fade-in");
+      },
+      { once: true }
+    );
   });
 
   dueFilterButton.addEventListener("click", () => {
     activeMenu = 2;
-    helperRenderTasks(activeMenu);
+    taskList.classList.remove("fade-in", "fade-out");
+    void taskList.offsetWidth; // reflow zorlaması (zorunlu, animasyon tetiklenmesi için)
+    taskList.classList.add("fade-out");
     allFilterButton.classList.remove("button-active");
     dueFilterButton.classList.add("button-active");
     completedFilterButton.classList.remove("button-active");
+    taskList.addEventListener(
+      "transitionend",
+      () => {
+        helperRenderTasks(activeMenu);
+        taskList.classList.remove("fade-out");
+        taskList.classList.add("fade-in");
+      },
+      { once: true }
+    );
   });
 };
 
@@ -231,15 +380,14 @@ const toggleTaskCompletion = (id, taskDiv) => {
   if (targetTask) {
     targetTask.checked = !targetTask.checked; // eğer checked ise unchecked yap, yani toggle
     //burada fade out animasyonunu yapacağız, bütün menüler için geçerli olacak çünkü uncheck yaparsak da aynı şey olmalı, her türlü güzel gözükmeli yani
-    if(targetTask.checked){
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
+    if (targetTask.checked) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
     }
-    taskDiv.classList.add("task-checked-animation"); // taskımızı fade out yapan sınıfı ekliyoruz task'a
-
+    taskDiv.classList.add("fade-out-task"); // taskımızı fade out yapan sınıfı ekliyoruz task'a
     taskDiv.addEventListener(
       // burdaki kodlar, transition bitince çalışacak ve bu sayede animasyon sorunsuz şekilde gösterilecek!
       "transitionend",
@@ -249,8 +397,11 @@ const toggleTaskCompletion = (id, taskDiv) => {
       { once: true }
     );
   }
+
   console.log("DEBUG: Task check toggled!");
 };
 
+detailedModalFunctionality();
 addModalFunctionality();
 menuChangeLogic();
+helperRenderTasks(activeMenu);

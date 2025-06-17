@@ -230,28 +230,31 @@
         </div>
       </div>
       <div class="content-container">
+        <div id="emptyState" class="out-of-display">
+          There are no tasks yet.
+        </div>
         <div id="taskList"></div>
       </div>
     </div>
 
     <!-- add modal -->
-    <div id="addModal" class="add-modal-container hidden">
-      <div class="add-modal">
+    <div id="addModal" class="modal-container hidden">
+      <div class="add-modal" id="addModalInternal">
         <div class="add-modal-top">
           <div class="add-modal-title">Add a task</div>
-          <div id="addModalClose" class="add-modal-close">
+          <div id="addModalClose" class="modal-close">
             <?xml version="1.0" encoding="UTF-8"?><svg
-              width="30px"
-              height="30px"
+              width="20px"
+              height="20px"
               stroke-width="1.5"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              color="#e9e9e9"
+              color="#333"
             >
               <path
                 d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
-                stroke="#e9e9e9"
+                stroke="#999"
                 stroke-width="1.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -309,7 +312,7 @@
                 ></path>
               </svg>
             </button>
-            <div class="add-more-opt-container hidden" id="addMoreOptContainer">
+            <div class="add-more-opt-container" id="addMoreOptContainer">
               <div class="add-section-groups">
                 <div class="add-section-title">Category</div>
                 <div class="add-section-input">
@@ -362,7 +365,54 @@
           </div>
         </div>
       </div>
-      <!-- ach, yarın burayı tekrardan, daha düzgün bir şekilde yapacağım, sonuçta güzel gözükecek! -->
+    </div>
+    <div id="detailsModal" class="modal-container hidden">
+      <div class="details-modal" id="detailsModalInternal">
+        <div class="d-modal-top">
+          <div class="d-title">Item Details</div>
+
+          <div class="modal-close" id="detailsModalClose">
+            <?xml version="1.0" encoding="UTF-8"?><svg
+              width="20px"
+              height="20px"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              color="#333"
+            >
+              <path
+                d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
+                stroke="#999"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <div class="d-modal-content">
+          <b><div id="detailsItemTitle"></div></b>
+          <div id="detailsItemDescription"></div>
+          <div id="detailsModalMore" class="d-modal-more">
+            <div id="detailsItemCategory"></div>
+            <div id="detailsItemDueDate"></div>
+            <div id="detailsItemUrgency"></div>
+          </div>
+        </div>
+        <div class="d-modal-actions">
+          <button id="detailsDeleteButton" class="other-buttons">Delete</button>
+          <button id="detailsEditButton" class="other-buttons">Edit</button>
+          <div class="edit-buttons display-none">
+            <button id="detailsSaveEditButton" class="other-buttons">
+              Save
+            </button>
+            <button id="detailsDiscardEditButton" class="other-buttons">
+              Discard
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.3.5/air-datepicker.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
