@@ -109,11 +109,11 @@
 }
 .out-of-display {
   opacity: 0 !important;
-  pointer-events: none; /* 
-  transition: opacity 0.2s ease-in-out; */
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
   transform: scaleY(
     0
-  ); /* görünmediği zaman yer kaplamasın ve taskları etkilemesin diye */
+  ) !important; /* görünmediği zaman yer kaplamasın ve taskları etkilemesin diye */
 }
 .display-none {
   display: none;
@@ -339,6 +339,7 @@ option {
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   transition: background-color 0.2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
   cursor: pointer;
 }
 .task-checkbox {
@@ -446,7 +447,7 @@ option {
   transition: background-color 0.2s ease-in-out;
   transition: border-color 0.2s ease-in-out;
   width: fit-content;
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 #detailsEditButton:hover {
   background-color: rgba(8, 49, 209, 0.766) !important;
@@ -458,7 +459,7 @@ option {
   border-color: rgba(137, 0, 0, 0.556) !important;
   transition: background-color 0.2s ease-in-out;
   transition: border-color 0.2s ease-in-out;
-  font-size: 0.8rem !important;
+  font-size: 1rem !important;
 }
 #detailsDeleteButton:hover {
   background-color: rgba(221, 0, 0, 0.766) !important;
@@ -478,7 +479,40 @@ option {
   border-radius: 0.6rem;
 }
 #detailsItemUrgency {
-  background-color: rgb(128, 0, 0);
+  background-color: #800000;
   padding: 0.4rem;
   border-radius: 0.6rem;
+}
+.task-urgency-low {
+  background-color: #ff7d4ab9 !important;
+}
+.task-urgency-medium {
+  background-color: #d64c2ab9 !important;
+}
+.task-urgency-high {
+  background-color: #b90000b9 !important;
+}
+/* edit state de iken olan butonların görünüşü */
+.edit-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+.details-input {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-toggle {
+  opacity: 0;
+  pointer-events: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+.fade-toggle.fade-visible {
+  opacity: 1;
+  max-height: 100px; /* yeterli bir yükseklik ver, fazla olursa scroll olur */
+  pointer-events: auto;
 }

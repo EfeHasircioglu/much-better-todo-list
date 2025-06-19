@@ -392,18 +392,72 @@
           </div>
         </div>
         <div class="d-modal-content">
-          <b><div id="detailsItemTitle"></div></b>
-          <div id="detailsItemDescription"></div>
+          <!-- burada details-text kısmı labeller yani gösterilenler iken edit tuşuna bastığımızda details-input sınıfının üyeleri ortaya çıkacak -->
+          <div id="detailsItemTitleContainer">
+            <b><div class="details-text" id="detailsItemTitle"></div></b>
+            <input
+              id="editTitleInput"
+              type="text"
+              class="other-buttons edit-button display-none details-input"
+              placeholder="Title"
+            />
+          </div>
+          <div id="detailsItemDescriptionContainer">
+            <div class="details-text" id="detailsItemDescription"></div>
+            <input
+              id="editDescriptionInput"
+              type="text"
+              class="other-buttons edit-button display-none details-input"
+              placeholder="Description"
+            />
+          </div>
           <div id="detailsModalMore" class="d-modal-more">
-            <div id="detailsItemCategory"></div>
-            <div id="detailsItemDueDate"></div>
-            <div id="detailsItemUrgency"></div>
+            <div id="detailsItemCategoryContainer">
+              <div class="details-text" id="detailsItemCategory"></div>
+              <select
+                name=""
+                id="editCategoryInput"
+                class="other-buttons select-area display-none details-input"
+              >
+                <option value="None">None</option>
+                <option value="Work">Work</option>
+                <option value="Home">Home</option>
+                <option value="Personal">Personal</option>
+              </select>
+            </div>
+            <div id="detailsItemDueDateContainer">
+              <div class="details-text" id="detailsItemDueDate"></div>
+              <input
+                type="text"
+                placeholder="Pick a date and time"
+                class="input-text display-none details-input"
+                name="editDueDateInput"
+                id="editDueDateInput"
+                autocomplete="off"
+              />
+            </div>
+            <div id="detailsItemUrgencyContainer">
+              <div class="details-text" id="detailsItemUrgency"></div>
+              <select
+                class="other-buttons select-area display-none details-input"
+                name="editUrgencyInput"
+                id="editUrgencyInput"
+              >
+                <option value="None">None</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="d-modal-actions">
           <button id="detailsDeleteButton" class="other-buttons">Delete</button>
           <button id="detailsEditButton" class="other-buttons">Edit</button>
-          <div class="edit-buttons display-none">
+          <div
+            id="detailsEditStateButtonsContainer"
+            class="edit-buttons out-of-display"
+          >
             <button id="detailsSaveEditButton" class="other-buttons">
               Save
             </button>

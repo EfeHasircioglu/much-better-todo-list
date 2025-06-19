@@ -1,4 +1,6 @@
-//TODO: yarın şu hızlı task ekleme olayını da yapalım
+//TODO: details menüsündeki edit ve delete butonlarının fonksiyonları. edit butonuna basıldığı zaman elementlerin hepsi editlenebilir olur ve arkaplanlarının rengi gri bir şey olur, editlenebildiklerini belirtmek için ve bir de alttaki butonlar save ve discard olarak değişir
+//TODO: bir de arama fonksiyonu var, o çok zor olmaz, hallederiz
+//TODO: bir task due ise o taskın arka planı kırmızı olabilir, veya yanında Due! diyen bir badge çıkar, ki ikincisi daha mantıklı
 let addModal = document.getElementById("addModal");
 let addModalInternal = document.getElementById("addModalInternal");
 let addButton = document.getElementById("addButton");
@@ -39,6 +41,21 @@ let detailsDeleteButton = document.getElementById("detailsDeleteButton");
 let detailsEditButton = document.getElementById("detailsEditButton");
 let detailsCloseButton = document.getElementById("detailsModalClose");
 let detailsModalMore = document.getElementById("detailsModalMore");
+let detailsSaveEditButton = document.getElementById("detailsSaveEditButton");
+let detailsDiscardEditButton = document.getElementById(
+  "detailsDiscardEditButton"
+);
+let detailsEditStateButtonsContainer = document.getElementById(
+  "detailsEditStateButtonsContainer"
+);
+
+//edit durumundaykenki diğer editlenebilecek detaylar
+let editTitleInput = document.getElementById("editTitleInput");
+let editDescriptionInput = document.getElementById("editDescriptionInput");
+let editCategoryInput = document.getElementById("editCategoryInput");
+let editDueDateInput = document.getElementById("editDueDateInput");
+let editUrgencyInput = document.getElementById("editUrgencyInput");
+
 //initialising the list that will contain the tasks
 let tasks = [];
 // all tasks menüsünde başlıyoruz uygulamaya, onun için onun stili aktif olacak
@@ -102,6 +119,14 @@ new AirDatepicker(dueDateSelect, {
   position: "top center",
 });
 
+//bu da edit menüsündeki due date için olan input.
+new AirDatepicker(editDueDateInput, {
+  autoClose: true,
+  timepicker: false, // If you want time too
+  locale: enLocale, // sets English
+  position: "top center",
+});
+
 // functionality of the add modal
 const addModalFunctionality = () => {
   // modalın açılması ve kapanması ile ilgili
@@ -151,15 +176,69 @@ const addModalFunctionality = () => {
 };
 
 const detailedModalFunctionality = () => {
-  //TODO: taskın urgency değerine göre detaylarda bulunan urgency şeyinin arkaplan rengini değiştirelim, eğer task due ise o zaman direk görevin kendisi kırmızı olabilir. bi de delete ve edit butonları başka bi more gibi bi butona bastığımızda ortaya çıksa ilginç olabilir
-  //NOTE: detaylar butonuna basıldığında değil, işaretleme yeri hariç görevin üzerine basıldığında menü açılacak. daha clean olur.
+  //taskın üzerine basıldığı zaman açılan menü
   detailsCloseButton.addEventListener("click", () => {
+    //şimdiki sorun şu ki, buna basıldığı zaman eğer modalın edit menüsü açık ise kapanacak ve eski haline dönecek
     detailsModalContainer.classList.add("hidden");
     detailsModalContainer.classList.remove("show");
+    detailedModalSwitchStates(false);
+    //diğer şeyler
+  });
+
+  detailsEditButton.addEventListener("click", () => {
+    editTitleInput.value = currentDetailedTask.title;
+    editDescriptionInput.value = currentDetailedTask.description;
+    editCategoryInput.value = currentDetailedTask.category;
+    editDueDateInput.value = currentDetailedTask.dueDate;
+    editUrgencyInput.value = currentDetailedTask.urgency;
+    detailedModalSwitchStates(true);
+  });
+
+  detailsDiscardEditButton.addEventListener("click", () => {
+    detailedModalSwitchStates(false);
   });
 };
 
+// bu func sayesinde eğer detailed menüsünde edit menüsü açıldıysa ve kapandıysa tekrar açtığımızda sıfırdan görünüyor
+const detailedModalSwitchStates = (state) => {
+  let detailLabels = document.querySelectorAll(".details-text");
+  let detailInputs = document.querySelectorAll(".details-input");
+
+  if (state === true) {
+    console.log(document.querySelectorAll(".details-text"));
+    detailLabels.forEach((el) => el.classList.add("display-none"));
+    detailInputs.forEach((el) => el.classList.remove("display-none"));
+    detailLabels.forEach((el, index) => {
+      el.addEventListener("transitionend", () => {
+        detailInputs[index].classList.remove("display-none");
+      });
+    });
+    detailsModalMore.classList.remove("display-none");
+    //bunlar aşağıdaki butonların değişmesi ile alakalı
+    detailsDeleteButton.classList.add("display-none");
+    detailsEditButton.classList.add("display-none");
+    detailsEditStateButtonsContainer.classList.remove("out-of-display");
+  } else if (state === false) {
+    //buraya da kapattığımız zaman ekranın önceki eski haline dönmesi için gereken şeyler yazılacak
+    console.log(document.querySelectorAll(".details-text"));
+    detailLabels.forEach((el) => el.classList.remove("display-none"));
+    detailInputs.forEach((el) => el.classList.add("display-none"));
+    detailLabels.forEach((el, index) => {
+      el.addEventListener("transitionend", () => {
+        detailInputs[index].classList.add("display-none");
+      });
+    });
+    detailsModalMore.classList.add("display-none");
+    //bunlar aşağıdaki butonların değişmesi ile alakalı
+    detailsDeleteButton.classList.remove("display-none");
+    detailsEditButton.classList.remove("display-none");
+    detailsEditStateButtonsContainer.classList.add("out-of-display");
+  }
+};
+
+//göreve tıkladığımız zaman gelen görevler kısmının içeriğinin görünüp görünmeyeceğini yöneten sınıf!
 const showTaskDetails = (task) => {
+  currentDetailedTask = task;
   detailsItemTitle.innerText = task.title;
   detailsItemDescription.innerText = task.description;
   if (task.category === "None") {
@@ -177,6 +256,20 @@ const showTaskDetails = (task) => {
   if (task.urgency === "None") {
     detailsItemUrgency.classList.add("display-none");
   } else {
+    // task urgency'nin seviyelerine göre onu gösteren şeyin arkaplanının rengi değişiyor
+    if (task.urgency === "Low") {
+      detailsItemUrgency.classList.add("task-urgency-low");
+      detailsItemUrgency.classList.remove("task-urgency-medium");
+      detailsItemUrgency.classList.remove("task-urgency-high");
+    } else if (task.urgency === "Medium") {
+      detailsItemUrgency.classList.add("task-urgency-medium");
+      detailsItemUrgency.classList.remove("task-urgency-low");
+      detailsItemUrgency.classList.remove("task-urgency-high");
+    } else if (task.urgency === "High") {
+      detailsItemUrgency.classList.add("task-urgency-high");
+      detailsItemUrgency.classList.remove("task-urgency-medium");
+      detailsItemUrgency.classList.remove("task-urgency-low");
+    }
     detailsItemUrgency.innerText = task.urgency;
     detailsItemUrgency.classList.remove("display-none");
   }
@@ -192,7 +285,7 @@ const showTaskDetails = (task) => {
   detailsModalContainer.classList.remove("hidden");
   detailsModalContainer.classList.add("show");
 };
-
+let currentDetailedTask = null; //detaylarını açtığımız zaman hangi task olduğunu diğer yerlerden daha rahat anlayabilmemiz için
 const addModalReset = () => {
   //modalın kapanma ve sıfırlanma işlemleri
   //modaldaki more options'un sıfırlanması ve scroll'un en başa getirilmesi
@@ -400,6 +493,36 @@ const toggleTaskCompletion = (id, taskDiv) => {
 
   console.log("DEBUG: Task check toggled!");
 };
+//buraya fast task ekleme olayını yapıcaz ve keypress eventi eklicez!
+fastTaskAdd.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    // inputtaki değerin boş olmaması lzm
+    const inputValue = fastTaskAdd.value.trim();
+    const id = crypto.randomUUID();
+
+    if (inputValue === "") return;
+    //diğer modalların da kapalı olması lzm
+    const isDetailsModalOpen =
+      !detailsModalContainer.classList.contains("hidden");
+    const isAddModalOpen = !addModal.classList.contains("hidden");
+    if (!isDetailsModalOpen && !isAddModalOpen) {
+      const newFastTask = {
+        id: id,
+        title: inputValue,
+        description: "",
+        category: "None",
+        dueDate: "",
+        urgency: "None",
+        checked: false,
+      };
+
+      createTask(newFastTask);
+      fastTaskAdd.value = ""; // input’u temizle
+    } else {
+      console.log("DEBUG: Modals should be closed!");
+    }
+  }
+});
 
 detailedModalFunctionality();
 addModalFunctionality();
