@@ -181,8 +181,9 @@ const detailedModalFunctionality = () => {
     //şimdiki sorun şu ki, buna basıldığı zaman eğer modalın edit menüsü açık ise kapanacak ve eski haline dönecek
     detailsModalContainer.classList.add("hidden");
     detailsModalContainer.classList.remove("show");
-    detailedModalSwitchStates(false);
-    //diğer şeyler
+    detailsModalContainer.addEventListener("transitionend", () => {
+      detailedModalSwitchStates(false);
+    });
   });
 
   detailsEditButton.addEventListener("click", () => {

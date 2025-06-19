@@ -516,3 +516,23 @@ option {
   max-height: 100px; /* yeterli bir yükseklik ver, fazla olursa scroll olur */
   pointer-events: auto;
 }
+#detailsModalMore {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  gap: 0;
+}
+#editDueDateInput {
+  font-size: 0.8rem;
+  width: 6.6rem;
+  max-width: 6.8rem;
+}
+#editUrgencyInput {
+  font-size: 0.8rem;
+  width: 6.6rem;
+}
+#editCategoryInput {
+  font-size: 0.8rem;
+  width: 6.6rem;
+  max-width: 6.8rem;
+}
