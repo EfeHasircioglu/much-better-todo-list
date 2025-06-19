@@ -181,8 +181,10 @@ const detailedModalFunctionality = () => {
     //şimdiki sorun şu ki, buna basıldığı zaman eğer modalın edit menüsü açık ise kapanacak ve eski haline dönecek
     detailsModalContainer.classList.add("hidden");
     detailsModalContainer.classList.remove("show");
-    detailsModalContainer.addEventListener("transitionend", () => {
-      detailedModalSwitchStates(false);
+    detailsModalContainer.addEventListener("transitionend", (e) => {
+      if (e.target === detailsModalContainer) {
+        detailedModalSwitchStates(false);
+      }
     });
   });
 
@@ -197,40 +199,60 @@ const detailedModalFunctionality = () => {
 
   detailsDiscardEditButton.addEventListener("click", () => {
     detailedModalSwitchStates(false);
+    taskEditVisualCheck(currentDetailedTask);
+  });
+  //artık burada yaptığımız (ya da yapmadığımız) editleri yine o göreve kaydedeceğiz
+  detailsSaveEditButton.addEventListener("click", () => {
+    //inputlarımızdan gerekli değerleri alıyoruz
+    const newTitle = editTitleInput.value.trim();
+    const newDescription = editDescriptionInput.value.trim();
+    const newCategory = editCategoryInput.value;
+    const newDueDate = editDueDateInput.value;
+    const newUrgency = editUrgencyInput.value;
+    //editlemekte olduğumuz taskı bulup onu güncelliyoruz
+    currentDetailedTask.title = newTitle;
+    currentDetailedTask.description = newDescription;
+    currentDetailedTask.category = newCategory;
+    currentDetailedTask.dueDate = newDueDate;
+    currentDetailedTask.urgency = newUrgency;
+    //görevleri yeniden çiz ki değişiklik yanısısın
+    helperRenderTasks(activeMenu);
+    taskEditVisualCheck(currentDetailedTask);
+
+    //modal harbiden kapansın
+    detailsModalContainer.classList.add("hidden");
+    detailsModalContainer.classList.remove("show");
+    detailsModalContainer.addEventListener("transitionend", (e) => {
+      if (e.target === detailsModalContainer) {
+        //edit paneli kapansın!
+        detailedModalSwitchStates(false);
+      }
+    });
   });
 };
 
 // bu func sayesinde eğer detailed menüsünde edit menüsü açıldıysa ve kapandıysa tekrar açtığımızda sıfırdan görünüyor
 const detailedModalSwitchStates = (state) => {
-  let detailLabels = document.querySelectorAll(".details-text");
-  let detailInputs = document.querySelectorAll(".details-input");
+  const detailLabels = document.querySelectorAll(".details-text");
+  const detailInputs = document.querySelectorAll(".details-input");
 
-  if (state === true) {
-    console.log(document.querySelectorAll(".details-text"));
+  if (state) {
     detailLabels.forEach((el) => el.classList.add("display-none"));
     detailInputs.forEach((el) => el.classList.remove("display-none"));
-    detailLabels.forEach((el, index) => {
-      el.addEventListener("transitionend", () => {
-        detailInputs[index].classList.remove("display-none");
-      });
-    });
+
     detailsModalMore.classList.remove("display-none");
-    //bunlar aşağıdaki butonların değişmesi ile alakalı
+    detailsModalMore.classList.remove("d-modal-more-more");
+
     detailsDeleteButton.classList.add("display-none");
     detailsEditButton.classList.add("display-none");
     detailsEditStateButtonsContainer.classList.remove("out-of-display");
-  } else if (state === false) {
-    //buraya da kapattığımız zaman ekranın önceki eski haline dönmesi için gereken şeyler yazılacak
-    console.log(document.querySelectorAll(".details-text"));
+  } else {
     detailLabels.forEach((el) => el.classList.remove("display-none"));
     detailInputs.forEach((el) => el.classList.add("display-none"));
-    detailLabels.forEach((el, index) => {
-      el.addEventListener("transitionend", () => {
-        detailInputs[index].classList.add("display-none");
-      });
-    });
-    detailsModalMore.classList.add("display-none");
-    //bunlar aşağıdaki butonların değişmesi ile alakalı
+
+    //detailsModalMore.classList.add("display-none");
+    detailsModalMore.classList.add("d-modal-more-more");
+
     detailsDeleteButton.classList.remove("display-none");
     detailsEditButton.classList.remove("display-none");
     detailsEditStateButtonsContainer.classList.add("out-of-display");
@@ -239,6 +261,9 @@ const detailedModalSwitchStates = (state) => {
 
 //göreve tıkladığımız zaman gelen görevler kısmının içeriğinin görünüp görünmeyeceğini yöneten sınıf!
 const showTaskDetails = (task) => {
+  detailsModalMore.classList.remove("display-none");
+  detailedModalSwitchStates(false);
+
   currentDetailedTask = task;
   detailsItemTitle.innerText = task.title;
   detailsItemDescription.innerText = task.description;
@@ -256,6 +281,11 @@ const showTaskDetails = (task) => {
   }
   if (task.urgency === "None") {
     detailsItemUrgency.classList.add("display-none");
+    detailsItemUrgency.classList.remove(
+      "task-urgency-low",
+      "task-urgency-medium",
+      "task-urgency-high"
+    );
   } else {
     // task urgency'nin seviyelerine göre onu gösteren şeyin arkaplanının rengi değişiyor
     if (task.urgency === "Low") {
@@ -274,12 +304,21 @@ const showTaskDetails = (task) => {
     detailsItemUrgency.innerText = task.urgency;
     detailsItemUrgency.classList.remove("display-none");
   }
+  taskEditVisualCheck(task);
+};
+
+const taskEditVisualCheck = (task) => {
   if (
     task.category === "None" &&
     task.urgency === "None" &&
     task.dueDate === ""
   ) {
     detailsModalMore.classList.add("display-none");
+    detailsItemUrgency.classList.remove(
+      "task-urgency-low",
+      "task-urgency-medium",
+      "task-urgency-high"
+    );
   } else {
     detailsModalMore.classList.remove("display-none");
   }
