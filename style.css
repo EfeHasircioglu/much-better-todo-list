@@ -3,8 +3,8 @@
   margin: 0;
   top: 0;
   left: 0;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 .main-container {
   display: grid;
@@ -315,8 +315,8 @@ option {
   top: 260px;
 }
 .add-task-func-container::before {
-  content: "";
-  content: "";
+  content: '';
+  content: '';
   position: absolute;
   top: 0;
   left: -16px;
@@ -338,7 +338,7 @@ option {
   font-size: 1.2rem;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out !important;
   transition: opacity 0.2s ease-in-out;
   cursor: pointer;
 }
@@ -421,23 +421,23 @@ option {
 #detailsItemTitle {
   font-size: 1.5rem;
   padding: 1rem;
+  padding-left: 0.5rem;
+  padding-top: 0.5;
   padding-bottom: 0;
 }
 #detailsItemDescription {
   padding: 0.5rem;
   padding-left: 1rem;
 }
+
 .d-modal-actions {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
   padding: 1rem;
-}
-.d-modal-actions {
   position: sticky;
   margin-top: auto;
   bottom: 0;
-  padding: 1rem;
   z-index: 10;
 }
 
@@ -447,7 +447,10 @@ option {
   transition: background-color 0.2s ease-in-out;
   transition: border-color 0.2s ease-in-out;
   width: fit-content;
-  font-size: 1rem;
+  font-size: 0.7rem;
+  padding: 0.3rem !important;
+  max-height: fit-content;
+  align-self: flex-end;
 }
 #detailsEditButton:hover {
   background-color: rgba(8, 49, 209, 0.766) !important;
@@ -455,11 +458,14 @@ option {
 }
 #detailsDeleteButton {
   max-width: fit-content;
+  max-height: fit-content;
   background-color: rgba(199, 0, 0, 0.615) !important;
   border-color: rgba(137, 0, 0, 0.556) !important;
   transition: background-color 0.2s ease-in-out;
   transition: border-color 0.2s ease-in-out;
-  font-size: 1rem !important;
+  font-size: 0.7rem !important;
+  padding: 0.3rem !important;
+  align-self: flex-end;
 }
 #detailsDeleteButton:hover {
   background-color: rgba(221, 0, 0, 0.766) !important;
@@ -516,22 +522,19 @@ option {
   max-height: 100px; /* yeterli bir yükseklik ver, fazla olursa scroll olur */
   pointer-events: auto;
 }
-#detailsModalMore.details-text {
+.details-text {
   display: flex;
   flex-direction: row;
-  padding: 0.5rem;
-  padding-left: 1rem;
+  margin-left: 0.5rem;
 }
-.d-modal-more{
+.d-modal-more {
   display: flex;
   flex-direction: row;
 }
 .d-modal-more-more {
   display: flex;
   flex-direction: row;
-  padding: 0.5rem;
-  padding-left: 1rem;
-  gap: 0.5rem;
+  padding-left: 0.5rem;
 }
 #editDueDateInput {
   font-size: 0.8rem;
@@ -547,6 +550,80 @@ option {
   width: 6.6rem;
   max-width: 6.8rem;
 }
-#detailsSaveEditButton {
-  /* burası yeşilimsi bişe olabilir hani save ya, discard gri kalsa okey */
+@media (max-width: 575px) {
+  .sidebar-container {
+    flex-direction: column;
+    width: 90%;
+    height: max-content;
+    max-height: min-content;
+    justify-self: center;
+  }
+  .bottom-content {
+    margin: 0;
+    margin-top: 0;
+  }
+  .other-buttons-area {
+    margin-top: 0;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+  }
+  .main-container {
+    grid-template-columns: auto;
+    grid-template-rows: 0.25fr 1fr;
+  }
+  .bottom-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1.5rem;
+    align-self: self-end;
+    z-index: 999;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  #fastTaskAdd {
+    display: none;
+  }
+  .add-task-container {
+    width: max-content;
+  }
+  .modal-close-mobile {
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: min-content;
+    margin-left: auto;
+  }
+  .d-modal-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+    position: sticky;
+    margin-top: auto;
+    bottom: 0;
+    z-index: 10;
+  }
+  .search-area {
+    padding: 1rem;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .search-area .input-text {
+    width: 105%;
+    font-size: 1rem;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(57, 57, 57);
+    backdrop-filter: blur(10px);
+    color: #e9e9e9;
+    /*  align-self: self-start; */
+    transition: background-color 0.2s ease-in-out;
+  }
+  /* TODO: BU SEARCH'IN SOLUNDA NEDEN PADDING GİBİ BİŞE VAR ÇILDIRCAM */
 }
