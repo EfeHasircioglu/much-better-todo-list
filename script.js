@@ -1,5 +1,3 @@
-//TODO: bir task due ise o taskın arka planı kırmızı olabilir, veya yanında Due! diyen bir badge çıkar, ki ikincisi daha mantıklı
-//TODO: yarın mobil görünümde şu üstteki yer daha bi toplu düzenli olabilir, sadece iconlar olsa ve yanlarında search olsa tek satırda hoş olur. onun dışında bi de ilk gireişte uygulamaya hg ekranı yapsak, bir de localstorage koysak efsanevi ötesi olur!!
 let addModal = document.getElementById('addModal');
 let addModalInternal = document.getElementById('addModalInternal');
 let addButton = document.getElementById('addButton');
@@ -63,15 +61,32 @@ let addModalMobileClose = document.getElementById('addModalMobileClose');
 let detailsModalMobileClose = document.getElementById(
   'detailsModalCloseMobile'
 );
+// ilk açılışta çıkacak modalın kapatma butonu
+let firstTimeCloseButton = document.getElementById('firstTimeCloseButton');
+let firstTimeModalContainer = document.getElementById('firstTimeModal');
+//localstorage mantığı
+const saveAppData = (data) => {
+  localStorage.setItem('appData', JSON.stringify(data));
+};
+
+const loadAppData = () => {
+  try {
+    const raw = localStorage.getItem('appData');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    console.warn('Error reading app data!', e);
+  }
+};
 //initialising the list that will contain the tasks
-let tasks = [];
+const data = loadAppData();
+let tasks = data.tasks || [];
+
 // all tasks menüsünde başlıyoruz uygulamaya, onun için onun stili aktif olacak
 allFilterButton.classList.add('button-active');
 //hengi menüde olduğumuzu takip etmek için
-let activeMenu = 0; // 0: All Tasks, 1: Completed, 2: Due
+let activeMenu = 0; // 0: All Tasks, 1: Completed, 2: Due, başta all tasks ile başlıyoruz
 
 //initialising airdatepicker
-
 const enLocale = {
   days: [
     'Sunday',
@@ -190,7 +205,25 @@ const addModalFunctionality = () => {
     };
 
     createTask(newTask);
+    //eklemeyi localStorage'e yazıyoruz
     addModalReset();
+  });
+};
+
+const welcomeModalFunctionality = () => {
+  const firstTimeUser = data.ftm_open || false;
+  if (!firstTimeUser) {
+    firstTimeModalContainer.classList.remove('hidden');
+    saveAppData({
+      ...data,
+      ftm_open: true,
+    });
+  } else {
+    firstTimeModalContainer.classList.add('hidden');
+  }
+
+  firstTimeCloseButton.addEventListener('click', () => {
+    firstTimeModalContainer.classList.add('hidden');
   });
 };
 
@@ -219,6 +252,10 @@ const detailedModalFunctionality = () => {
   //silme fonksiyonu için olan kısım
   detailsDeleteButton.addEventListener('click', () => {
     tasks = tasks.filter((task) => task.id !== currentDetailedTask.id); // tasks listesini o task hariç olacak şekilde yeniden filtreliyor ve bu kalıcı!
+    saveAppData({
+      ...loadAppData(),
+      tasks: tasks,
+    });
     detailsModalContainer.classList.add('hidden');
     detailsModalContainer.classList.remove('show');
     helperRenderTasks();
@@ -251,19 +288,18 @@ const detailedModalFunctionality = () => {
     currentDetailedTask.category = newCategory;
     currentDetailedTask.dueDate = newDueDate;
     currentDetailedTask.urgency = newUrgency;
+    taskEditVisualCheck(currentDetailedTask);
+    //değişiklikleri localStorage'e kaydediyoruz.
+    saveAppData({
+      ...loadAppData(),
+      tasks: tasks,
+    });
     //görevleri yeniden çiz ki değişiklik yanısısın
     helperRenderTasks(activeMenu);
-    taskEditVisualCheck(currentDetailedTask);
     //modal harbiden kapansın
 
     detailedModalSwitchStates(false);
     showTaskDetails(currentDetailedTask);
-
-    /*     detailsModalContainer.addEventListener("transitionend", (e) => {
-      if (e.target === detailsModalContainer) {
-        //edit paneli kapansın!
-      }
-    }); */
   });
 };
 
@@ -297,6 +333,7 @@ const detailedModalSwitchStates = (state) => {
 
 //göreve tıkladığımız zaman gelen görevler kısmının içeriğinin görünüp görünmeyeceğini yöneten sınıf!
 const showTaskDetails = (task) => {
+  //todo: burayı tersine yapacağız, yani eğer yoksa silmek değil, varsa eklemek... mevzubahis sorunun çözümü burada gibi.
   detailsModalMore.classList.remove('display-none');
   detailedModalSwitchStates(false);
 
@@ -349,7 +386,8 @@ const showTaskDetails = (task) => {
 const mobileResponsivity = () => {
   const smallSVG = `<?xml version="1.0" encoding="UTF-8"?><svg width="40px" height="40px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#ffffff"><path d="M6 12H12M18 12H12M12 12V6M12 12V18" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
   const largeSVG = `<?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#ffffff"><path d="M12 11H14.5H17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 7H14.5H17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 15V3.6C8 3.26863 8.26863 3 8.6 3H20.4C20.7314 3 21 3.26863 21 3.6V17C21 19.2091 19.2091 21 17 21V21" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 15H8H12.4C12.7314 15 13.0031 15.2668 13.0298 15.5971C13.1526 17.1147 13.7812 21 17 21H8H6C4.34315 21 3 19.6569 3 18V17C3 15.8954 3.89543 15 5 15Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
-  if (window.innerWidth < 575) {
+  if (window.innerWidth <= 575) {
+    //task ekleme butonunun svg'sini daha basit bir + işareti yapıyor
     addTaskSVG.innerHTML = smallSVG;
     //add modalının kapama şeyini ekran boyutuna göre değiştiriyoruz
     addModalClose.classList.add('display-none');
@@ -370,7 +408,7 @@ const mobileResponsivity = () => {
     detailsEditButton.innerHTML = `Edit`;
   }
 };
-
+//TODO: şöyle bir sorun var ki ilk başta örneğin urgency değeri none olmayan bir taska baktığımızda urgency olması gerektiği gibi gözüküyor ama daha sonra urgency'yi olmayan ama diğer iki değerden en az birine sahip bir taska gittiğimizde urgency küçük kırmızı yuvarlak olarak gözüküyor
 const taskEditVisualCheck = (task) => {
   if (
     task.category === 'None' &&
@@ -422,6 +460,10 @@ const createTask = (task) => {
   }
 
   tasks.push(task);
+  saveAppData({
+    ...loadAppData(),
+    tasks: tasks,
+  });
   helperRenderTasks(activeMenu);
   //debug için, sonra kaldırılır!
   console.log('DEBUG: New task added!');
@@ -437,6 +479,10 @@ const renderTask = (task) => {
   //checkbox tıklanması için mini-mantık
   taskCheckbox.addEventListener('click', () => {
     toggleTaskCompletion(task.id, taskDiv); // checkbox tıklandığında olan şey!
+    saveAppData({
+      ...loadAppData(),
+      tasks: tasks,
+    });
   });
   // checkbox hariç taska tıklanınca taskın detaylarını gösterecek menü ortaya çıkacak, ama menünün içeriği diğer fonksiyonda ayarlanacak
   taskDiv.addEventListener('click', (e) => {
@@ -640,6 +686,7 @@ const searchFunctionality = () => {
   });
 };
 
+//uygulamanın çalışması için gerekli olan fonksiyonlar
 searchFunctionality();
 detailedModalFunctionality();
 addModalFunctionality();
@@ -648,3 +695,4 @@ helperRenderTasks(activeMenu);
 //ekran boyutu değişince responsivite şeylerinin değişmesini  de sağlar
 window.addEventListener('resize', mobileResponsivity);
 mobileResponsivity();
+welcomeModalFunctionality();
