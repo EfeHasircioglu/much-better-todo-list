@@ -118,11 +118,6 @@
 }
 .display-none {
   display: none !important;
-  width: 0 !important;
-  max-width: 0 !important;
-  transform: scaleY(0) !important;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 /* boş olduğu zaman gösterilecek şey için olan stiller */
 #emptyState {
@@ -427,8 +422,8 @@ option {
   padding-bottom: 0;
 }
 #detailsItemDescription {
-  padding: 0.5rem;
-  padding-left: 1rem;
+  padding: 1rem;
+  padding-left: 0.5rem;
 }
 
 .d-modal-actions {
@@ -531,11 +526,7 @@ option {
 .d-modal-more {
   display: flex;
   flex-direction: row;
-}
-.d-modal-more-more {
-  display: flex;
-  flex-direction: row;
-  padding-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 #editDueDateInput {
   font-size: 0.8rem;

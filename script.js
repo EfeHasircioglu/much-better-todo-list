@@ -80,6 +80,8 @@ const loadAppData = () => {
 //initialising the list that will contain the tasks
 const data = loadAppData();
 let tasks = data.tasks || [];
+//eğer localstorage'de task varsa buglu bi şekilde yer kaplamasın, nolur
+//taskListEmptyState.classList.add('display-none');
 
 // all tasks menüsünde başlıyoruz uygulamaya, onun için onun stili aktif olacak
 allFilterButton.classList.add('button-active');
@@ -258,7 +260,7 @@ const detailedModalFunctionality = () => {
     });
     detailsModalContainer.classList.add('hidden');
     detailsModalContainer.classList.remove('show');
-    helperRenderTasks();
+    helperRenderTasks(activeMenu);
   });
 
   detailsEditButton.addEventListener('click', () => {
@@ -288,7 +290,6 @@ const detailedModalFunctionality = () => {
     currentDetailedTask.category = newCategory;
     currentDetailedTask.dueDate = newDueDate;
     currentDetailedTask.urgency = newUrgency;
-    taskEditVisualCheck(currentDetailedTask);
     //değişiklikleri localStorage'e kaydediyoruz.
     saveAppData({
       ...loadAppData(),
@@ -304,26 +305,24 @@ const detailedModalFunctionality = () => {
 };
 
 // bu func sayesinde eğer detailed menüsünde edit menüsü açıldıysa ve kapandıysa tekrar açtığımızda sıfırdan görünüyor
+const detailLabels = document.querySelectorAll('.details-text');
+const detailInputs = document.querySelectorAll('.details-input');
 const detailedModalSwitchStates = (state) => {
-  const detailLabels = document.querySelectorAll('.details-text');
-  const detailInputs = document.querySelectorAll('.details-input');
-
   if (state) {
     detailLabels.forEach((el) => el.classList.add('display-none'));
     detailInputs.forEach((el) => el.classList.remove('display-none'));
 
     detailsModalMore.classList.remove('display-none');
-    detailsModalMore.classList.remove('d-modal-more-more');
 
     detailsDeleteButton.classList.add('display-none');
     detailsEditButton.classList.add('display-none');
     detailsEditStateButtonsContainer.classList.remove('out-of-display');
   } else {
-    detailLabels.forEach((el) => el.classList.remove('display-none'));
+    detailsItemTitle.classList.remove('display-none');
+    if (detailsItemDescription !== '') {
+      detailsItemDescription.classList.remove('display-none');
+    }
     detailInputs.forEach((el) => el.classList.add('display-none'));
-
-    //detailsModalMore.classList.add("display-none");
-    detailsModalMore.classList.add('d-modal-more-more');
 
     detailsDeleteButton.classList.remove('display-none');
     detailsEditButton.classList.remove('display-none');
@@ -333,37 +332,44 @@ const detailedModalSwitchStates = (state) => {
 
 //göreve tıkladığımız zaman gelen görevler kısmının içeriğinin görünüp görünmeyeceğini yöneten sınıf!
 const showTaskDetails = (task) => {
-  //todo: burayı tersine yapacağız, yani eğer yoksa silmek değil, varsa eklemek... mevzubahis sorunun çözümü burada gibi.
-  detailsModalMore.classList.remove('display-none');
-  detailedModalSwitchStates(false);
-
   currentDetailedTask = task;
+  //todo: burayı tersine yapacağız, yani eğer yoksa silmek değil, varsa eklemek... mevzubahis sorunun çözümü burada gibi.
   detailsItemTitle.innerText = task.title;
   detailsItemDescription.innerText = task.description;
-  if (task.category === 'None' || currentDetailedTask.category === 'None') {
-    detailsItemCategory.classList.add('display-none');
-    detailsItemCategory.innerText = '';
-  } else {
+  // task urgency'nin seviyelerine göre onu gösteren şeyin arkaplanının rengi değişiyor
+  detailsModalContainer.classList.remove('hidden');
+  detailsModalContainer.classList.add('show');
+  taskEditVisualCheck(task);
+};
+
+const taskEditVisualCheck = (task) => {
+  //ilk başta önceki tasktan kalmış olabilecek ayarları temizlemek iyi bir seçim olabilir.
+  // TEMİZLE
+  detailsItemDescription.classList.add('display-none');
+  detailsItemUrgency.innerText = '';
+  detailsItemUrgency.classList.add('display-none');
+  detailsItemUrgency.classList.remove(
+    'task-urgency-low',
+    'task-urgency-medium',
+    'task-urgency-high'
+  );
+
+  detailsItemCategory.innerText = '';
+  detailsItemCategory.classList.add('display-none');
+
+  detailsItemDueDate.innerText = '';
+  detailsItemDueDate.classList.add('display-none');
+  // daha sonra o anki taskın durumuna göre uygulama yapıyoruz.
+  if (detailsItemDescription !== '') {
+    detailsItemDescription.classList.remove('display-none');
+  }
+  if (task.category !== 'None') {
     detailsItemCategory.innerText = task.category;
     detailsItemCategory.classList.remove('display-none');
   }
-  if (task.dueDate === '' || currentDetailedTask.dueDate === '') {
-    detailsItemDueDate.classList.add('display-none');
-    detailsItemDueDate.innerText = '';
-  } else {
-    detailsItemDueDate.innerHTML = task.dueDate;
-    detailsItemDueDate.classList.remove('display-none');
-  }
-  if (task.urgency === 'None' || currentDetailedTask.urgency === 'None') {
-    detailsItemUrgency.classList.add('display-none');
-    detailsItemUrgency.innerText = '';
-    detailsItemUrgency.classList.remove(
-      'task-urgency-low',
-      'task-urgency-medium',
-      'task-urgency-high'
-    );
-  } else {
-    // task urgency'nin seviyelerine göre onu gösteren şeyin arkaplanının rengi değişiyor
+  if (task.urgency !== 'None') {
+    detailsItemUrgency.innerText = task.urgency;
+    detailsItemUrgency.classList.remove('display-none');
     if (task.urgency === 'Low') {
       detailsItemUrgency.classList.add('task-urgency-low');
       detailsItemUrgency.classList.remove('task-urgency-medium');
@@ -377,12 +383,13 @@ const showTaskDetails = (task) => {
       detailsItemUrgency.classList.remove('task-urgency-medium');
       detailsItemUrgency.classList.remove('task-urgency-low');
     }
-    detailsItemUrgency.innerText = task.urgency;
-    detailsItemUrgency.classList.remove('display-none');
   }
-  taskEditVisualCheck(task);
+  if (task.dueDate !== '') {
+    detailsItemDueDate.innerText = task.dueDate;
+    detailsItemDueDate.classList.remove('display-none');
+  }
+  detailedModalSwitchStates(false);
 };
-
 const mobileResponsivity = () => {
   const smallSVG = `<?xml version="1.0" encoding="UTF-8"?><svg width="40px" height="40px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#ffffff"><path d="M6 12H12M18 12H12M12 12V6M12 12V18" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
   const largeSVG = `<?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#ffffff"><path d="M12 11H14.5H17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 7H14.5H17" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 15V3.6C8 3.26863 8.26863 3 8.6 3H20.4C20.7314 3 21 3.26863 21 3.6V17C21 19.2091 19.2091 21 17 21V21" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 15H8H12.4C12.7314 15 13.0031 15.2668 13.0298 15.5971C13.1526 17.1147 13.7812 21 17 21H8H6C4.34315 21 3 19.6569 3 18V17C3 15.8954 3.89543 15 5 15Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
@@ -409,24 +416,7 @@ const mobileResponsivity = () => {
   }
 };
 //TODO: şöyle bir sorun var ki ilk başta örneğin urgency değeri none olmayan bir taska baktığımızda urgency olması gerektiği gibi gözüküyor ama daha sonra urgency'yi olmayan ama diğer iki değerden en az birine sahip bir taska gittiğimizde urgency küçük kırmızı yuvarlak olarak gözüküyor
-const taskEditVisualCheck = (task) => {
-  if (
-    task.category === 'None' &&
-    task.urgency === 'None' &&
-    task.dueDate === ''
-  ) {
-    detailsModalMore.classList.add('display-none');
-    detailsItemUrgency.classList.remove(
-      'task-urgency-low',
-      'task-urgency-medium',
-      'task-urgency-high'
-    );
-  } else {
-    detailsModalMore.classList.remove('display-none');
-  }
-  detailsModalContainer.classList.remove('hidden');
-  detailsModalContainer.classList.add('show');
-};
+
 let currentDetailedTask = null; //detaylarını açtığımız zaman hangi task olduğunu diğer yerlerden daha rahat anlayabilmemiz için
 const addModalReset = () => {
   //modalın kapanma ve sıfırlanma işlemleri
@@ -511,7 +501,7 @@ const renderTask = (task) => {
 
 // helper func for drawing tasks on the screen
 const helperRenderTasks = (activeMenu, searchTerm = '') => {
-  taskListEmptyState.classList.add('out-of-display'); //her ihtimale karşı
+  taskListEmptyState.classList.add('display-none'); //her ihtimale karşı
 
   taskList.innerHTML = ''; //daha önceden eklenen görevlerin tekrardan ekrana eklenmesini engelliyor
   let filteredTasks = [];
@@ -524,8 +514,8 @@ const helperRenderTasks = (activeMenu, searchTerm = '') => {
   } // due olan görevler 3. menüde görünecek
   else if (activeMenu === 2) {
     filteredTasks = tasks.filter((task) => {
-      const taskDue = new Date(task.dueDate);
-      return !task.checked && taskDue < Date.now(); //aynı zamanda mantıken görevin tamamlanmamış da olması gerekiyor
+      const taskDue = parseEuropeanDate(task.dueDate); //bu yarattığımız tarih parseeuropeandate kullanmadan önce amerikan formatını kullanıyordu, ama biz due tarihini alırken avrupa formatında alıyoruz. bu sorunu çözmek için ilk yaratılan date.now'u avruya formatına çeviriyoruz.
+      return !task.checked && !isNaN(taskDue) && taskDue.getTime() < Date.now(); //aynı zamanda görevin tamamlanmış da olması gerekiyor.
     });
   }
   if (searchTerm.trim() !== '') {
@@ -542,23 +532,25 @@ const helperRenderTasks = (activeMenu, searchTerm = '') => {
     showEmptyState();
   }
 };
+// helper function to properly format dates
+const parseEuropeanDate = (str) => {
+  const [day, month, year] = str.split(/[./]/); // hem '.' hem '/' desteklesin
+  return new Date(Number(year), Number(month) - 1, Number(day)); // month 0-indexed
+};
 
 // ekran boş iken gösterilmesi için
 const showEmptyState = () => {
   taskListEmptyState.style.display = 'block';
   void taskListEmptyState.offsetWidth; // reflow tetikleyelim
   taskListEmptyState.classList.remove('out-of-display');
+  taskListEmptyState.classList.remove('display-none');
 };
 
 const hideEmptyState = () => {
   taskListEmptyState.classList.add('out-of-display');
-  taskListEmptyState.addEventListener(
-    'transitionend',
-    () => {
-      taskListEmptyState.style.display = 'none';
-    },
-    { once: true }
-  );
+  taskListEmptyState.addEventListener('transitionend', () => {
+    taskListEmptyState.classList.add('display-none');
+  });
 };
 
 const menuChangeLogic = () => {
@@ -687,11 +679,11 @@ const searchFunctionality = () => {
 };
 
 //uygulamanın çalışması için gerekli olan fonksiyonlar
+helperRenderTasks(activeMenu);
 searchFunctionality();
 detailedModalFunctionality();
 addModalFunctionality();
 menuChangeLogic();
-helperRenderTasks(activeMenu);
 //ekran boyutu değişince responsivite şeylerinin değişmesini  de sağlar
 window.addEventListener('resize', mobileResponsivity);
 mobileResponsivity();
