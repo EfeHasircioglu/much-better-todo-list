@@ -603,6 +603,7 @@ option {
   .bottom-button {
     position: fixed;
     margin-top: auto;
+    pointer-events: all;
     top: 1px;
     bottom: 20px;
     right: 20px;
