@@ -601,8 +601,9 @@ option {
     grid-template-rows: 0.1fr 1fr;
   }
   .bottom-button {
-    align-self: flex-end;
-    position: absolute;
+    position: fixed;
+    margin-top: auto;
+    top: 1px;
     bottom: 20px;
     right: 20px;
     width: 4rem;
@@ -611,11 +612,15 @@ option {
     z-index: 999;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
+
   #fastTaskAdd {
     display: none;
   }
   .add-task-container {
+    display: flex;
+    flex-direction: row;
     width: max-content;
+    height: 100%;
   }
   .modal-close-mobile {
     padding: 0.5rem;
