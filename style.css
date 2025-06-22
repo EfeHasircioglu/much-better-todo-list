@@ -607,7 +607,7 @@ option {
     width: 4rem;
     height: 4rem;
     border-radius: 1.5rem;
-    align-self: self-end;
+    align-self: flex-end;
     z-index: 999;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
