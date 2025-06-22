@@ -528,6 +528,9 @@ option {
   flex-direction: row;
   margin-left: 0.5rem;
 }
+.d-modal-input {
+  margin-left: 0 !important;
+}
 #editDueDateInput {
   font-size: 0.8rem;
   width: 6.6rem;

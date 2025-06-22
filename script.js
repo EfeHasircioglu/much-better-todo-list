@@ -311,7 +311,7 @@ const detailedModalSwitchStates = (state) => {
   if (state) {
     detailLabels.forEach((el) => el.classList.add('display-none'));
     detailInputs.forEach((el) => el.classList.remove('display-none'));
-
+    detailsModalMore.classList.add('d-modal-input');
     detailsModalMore.classList.remove('display-none');
 
     detailsDeleteButton.classList.add('display-none');
@@ -319,6 +319,7 @@ const detailedModalSwitchStates = (state) => {
     detailsEditStateButtonsContainer.classList.remove('out-of-display');
   } else {
     detailsItemTitle.classList.remove('display-none');
+    detailsModalMore.classList.remove('d-modal-input'); //eğer input ekranındaysak o inputlar ortada gözüksün diye bunu kaldırıyoruz ama normal ekranda çok solda oluyorlar.
     if (detailsItemDescription !== '') {
       detailsItemDescription.classList.remove('display-none');
     }
